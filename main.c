@@ -10,7 +10,7 @@
 #include "InterruptServiceRoutines.h"
 
 // Global Variables
-int RotaryEncoderStateCount; // Indicates valid FSM sequences.
+volatile int RotaryEncoderStateCount; // Indicates valid FSM sequences.
 int LEDDisplayValue; // Indicates value to display in the 7-segment displays
 
 #define FALSE 0
@@ -30,24 +30,24 @@ int main(void)
 	WDTCTL = WDTPW | WDTHOLD;		// Stop watchdog timer
     ConfigureClockModule();
 
-    //Standby
-    P1DIR |= BIT1;
-    P1OUT |= BIT1;
-
-
-    //PWM
-    P1DIR |= BIT2;
-    P1OUT |= BIT2;
-
-
-    //In1
-    P1DIR |= BIT3;
-    P1OUT |= BIT3;
-
-
-    //In2
-    P1DIR |= BIT4;
-    P1OUT &= ~BIT4;
+//    //Standby
+//    P1DIR |= BIT1;
+//    P1OUT |= BIT1;
+//
+//
+//    //PWM
+//    P1DIR |= BIT2;
+//    P1OUT |= BIT2;
+//
+//
+//    //In1
+//    P1DIR |= BIT3;
+//    P1OUT |= BIT3;
+//
+//
+//    //In2
+//    P1DIR |= BIT4;
+//    P1OUT &= ~BIT4;
 
 
     // Initialize hardware.
@@ -76,7 +76,7 @@ int main(void)
 
 	    // Read inputs. Note that if bouncing is an issue, you may have to debounce
 	    // the inputs using the DebounceSwitch() function instead of ReadSwitchStatus().
-	    RotaryEncoder_FSM.Reset = ReadSwitchStatus(&RotaryEncoderReset);
+	   // RotaryEncoder_FSM.Reset = ReadSwitchStatus(&RotaryEncoderReset);
 	    RotaryEncoder_FSM.SwitchA = ReadSwitchStatus(&RotaryEncoderSwitchA);
         RotaryEncoder_FSM.SwitchB = ReadSwitchStatus(&RotaryEncoderSwitchB);
 

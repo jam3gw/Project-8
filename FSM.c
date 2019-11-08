@@ -1,13 +1,35 @@
 # include "FSM.h"
 #include "pwm.h"
 #include "LED.h"
+//#include "InterruptServiceRoutines.h"
 
-volatile extern int RotaryEncoderStateCount;
+extern unsigned int g1msTimer;
+extern volatile int RotaryEncoderStateCount;
 extern int LEDDisplayValue;
 
 void InitializeFSM(FSMType *FSM)
 {
     FSM->CurrentState = ResetState;
+
+    //Initialization of the motor
+    //Standby
+    P1DIR |= BIT1;
+    P1OUT |= BIT1;
+
+
+    //PWM
+    P1DIR |= BIT2;
+    P1OUT |= BIT2;
+
+
+    //In1
+    P1DIR |= BIT3;
+    P1OUT |= BIT3;
+
+
+    //In2
+    P1DIR |= BIT4;
+    P1OUT &= ~BIT4;
 }
 
 FSMState NextStateFunction(FSMType *FSM)
@@ -144,21 +166,37 @@ void OutputFunction(FSMType *FSM)
     if (FSM->CurrentState == ResetState) {
         // Insert code to initialize TA0CCR1 and the LED display value.
         LEDDisplayValue = 5;
-        TA0CCR1 = (TA0CCR0 >> 1);
+        //TA0CCR1 = (TA0CCR0 >> 1);
     }
     else {
+        volatile int count = RotaryEncoderStateCount;
         if (RotaryEncoderStateCount == 48) { // clockwise
             // Insert code action(s) when rotary encoder has been rotated clockwise.
-            TOGGLE_RED_LED;
+            TOGGLE_GREEN_LED;
+            if (g1msTimer > SET_POINT){
+                TA0CCR1 += 1;
+            }
+            else if (g1msTimer < SET_POINT){
+                TA0CCR1 -= 1;
+            }
 
             RotaryEncoderStateCount = 0;
+            g1msTimer = 0;
 
         }
 
         if (RotaryEncoderStateCount == -48) { // counter-clockwise
             // Insert code for action(s) when rotary encoder has been rotated counter-clockwise.
-            TOGGLE_RED_LED;
+            TOGGLE_GREEN_LED;
+            if (g1msTimer > SET_POINT){
+                TA0CCR1 += 1;
+            }
+            else if (g1msTimer < SET_POINT){
+                TA0CCR1 -= 1;
+            }
+
             RotaryEncoderStateCount = 0;
+            g1msTimer = 0;
         }
     }
     SetLEDDisplay(LEDDisplayValue);
